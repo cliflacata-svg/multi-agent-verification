@@ -102,7 +102,7 @@ When finished, state only the deliverable path(s) you produced.
 
 Workers route to external CLIs by default (see SKILL.md routing). Fill the worker or rework spawn prompt exactly as for an in-harness subagent, save it to `swarm/prompts/TASK-<id>-attempt-<n>.txt`, then invoke from the Bash tool in the project root:
 
-Invoke from the **Bash tool** (not PowerShell) with stdin closed via `</dev/null` — with stdin left open, `codex exec` hangs forever producing no output. Neither CLI is typically on Bash's default PATH; prepend their install locations first.
+Invoke from the **Bash tool** (not PowerShell) with stdin closed via `</dev/null`. With stdin left open, `codex exec` hangs forever producing no output. Neither CLI is typically on Bash's default PATH; prepend their install locations first.
 
 ```bash
 # Adjust these to wherever the CLIs are installed on your machine.
@@ -123,8 +123,8 @@ Rules for external workers:
 2. Record the family in the ledger's `worker_model` (e.g. `codex/gpt-5` or `gemini-2.5-pro`) so rework and escalation can re-route deliberately.
 3. Tier-up escalation order when a task fails out at a family: other external family first, then a mid-tier in-harness subagent.
 4. If a CLI errors with an auth prompt, it needs an interactive browser login (`codex login` / `agy login`). The `!` prefix and sandboxed shells cannot open the auth picker or browser; instead open a real console window on the desktop via PowerShell `Start-Process cmd -ArgumentList '/k','<login command>'` and let the operator complete it there. Fall back to in-harness subagent workers meanwhile.
-5. **Codex can exit 0 without doing any work.** Observed: "ERROR: Selected model is at capacity" printed twice, ~4k tokens, zero file changes, exit code 0. Before spawning the checker, grep the worker's output for `ERROR` and sanity-check that deliverable files changed (mtime or existence). A capacity error is not a worker attempt — re-run it without incrementing the real attempt count, or fall back to an in-harness subagent worker if it repeats.
-6. Known limitation: `agy` (Antigravity CLI) failed its audition — `-p` print mode is text-only and cannot write files even with `--dangerously-skip-permissions` or `--mode accept-edits` (tested v0.50-era, 2026-07-10). Until Google ships an agentic headless mode, agy is not usable as a swarm worker; verify with a fresh audition before re-admitting it.
+5. **Codex can exit 0 without doing any work.** Observed: "ERROR: Selected model is at capacity" printed twice, ~4k tokens, zero file changes, exit code 0. Before spawning the checker, grep the worker's output for `ERROR` and sanity-check that deliverable files changed (mtime or existence). A capacity error is not a worker attempt, so re-run it without incrementing the real attempt count, or fall back to an in-harness subagent worker if it repeats.
+6. Known limitation: `agy` (Antigravity CLI) failed its audition: `-p` print mode is text-only and cannot write files even with `--dangerously-skip-permissions` or `--mode accept-edits` (tested v0.50-era, 2026-07-10). Until Google ships an agentic headless mode, agy is not usable as a swarm worker; verify with a fresh audition before re-admitting it.
 
 ## Checker spawn prompt
 
